@@ -71,16 +71,40 @@ describe('Testa a camada de service de products.', () => {
       const product = await productsServices.getProductById(1);
       expect(product).to.be.not.undefined;
     });
+  });
 
-  // describe("Testa a função createProduct", () => {
+  describe("Testa a função createProduct", () => {
     
-  //   it("Testa se chamando a função createProduct recebe um objeto com chaves 'id' e 'name.", async () => {
-  //     sinon.stub(productsModels, "createProduct").resolves(response(newFakeProduct, 201));
-  //     const product = await productsServices.createProduct();
+    it("Testa se chamando a função createProduct recebe um objeto com chaves 'reponse' contendo chaves 'id' e 'name e outra chamada 'code' contendo uma chave 'code'.", async () => {
+      const newProduct = { id: 4, name: "Armadura do homem de ferro" };
+      sinon.stub(productsModels, "createProduct").resolves(newProduct);
+      const product = await productsServices.createProduct(newProduct.name);
 
-  //     expect(product).to.be.an("array");
-  //     expect(product).to.be.equal(fakeProducts);
-  //   });
-  // });
+      expect(product.response).to.be.an("object").that.has.all.keys('id', 'name');
+      expect(product.response.id).to.be.equal(4);
+      expect(product.response.name).to.be.equal(newProduct.name);
+      expect(product.code).to.be.an("object").that.has.all.keys('code');
+      expect(product.code.code).to.be.equal(201);
+    });
+    it("Testa se chamando a função createProduct, sem passar um nome, recebe um objeto com chaves 'reponse' contendo a chave 'message' e outra chamada 'code' contendo uma chave 'code'.", async () => {
+      const expectedResponse = response({ message: '"name" is required' }, 400);
+      sinon.stub(productsModels, "createProduct").resolves();
+      const product = await productsServices.createProduct();
+
+      expect(product.response).to.be.an("object").that.has.all.keys('message');
+      expect(product.response.message).to.be.equal(expectedResponse.response.message);
+      expect(product.code).to.be.an("object").that.has.all.keys('code');
+      expect(product.code.code).to.be.equal(expectedResponse.code.code);
+    });
+    it("Testa se chamando a função createProduct, passando um nome com menos que cinco caracteres, recebe um objeto com chaves 'reponse' contendo a chave 'message' e outra chamada 'code' contendo uma chave 'code'.", async () => {
+      const expectedResponse = response({ message: '"name" length must be at least 5 characters long' }, 422);
+      sinon.stub(productsModels, "createProduct").resolves();
+      const product = await productsServices.createProduct("name");
+
+      expect(product.response).to.be.an("object").that.has.all.keys('message');
+      expect(product.response.message).to.be.equal(expectedResponse.response.message);
+      expect(product.code).to.be.an("object").that.has.all.keys('code');
+      expect(product.code.code).to.be.equal(expectedResponse.code.code);
+    });
   });
 });
