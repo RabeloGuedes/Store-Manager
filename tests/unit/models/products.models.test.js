@@ -4,7 +4,7 @@ const { expect } = require('chai');
 const productsModels = require('../../../models/products');
 const connection = require('../../../models/connection');
 
-describe('Testa conectividade com o banco de dados produtos', () => {
+describe('Testa a camada models de produtos', () => {
   const fakeProducts = [
     {
       id: 1,
@@ -23,6 +23,24 @@ describe('Testa conectividade com o banco de dados produtos', () => {
     id: 1,
     name: "Martelo de Thor",
   };
+  const updatedFakeProducts = [
+    {
+      id: 1,
+      name: "Martelo de Thor",
+    },
+    {
+      id: 2,
+      name: "Traje de encolhimento",
+    },
+    {
+      id: 3,
+      name: "Escudo do Capitão América",
+    },
+    {
+      id: 4,
+      name: "Armadura do homem ferro",
+    },
+  ];
   beforeEach(sinon.restore);
   describe('Testa a função getAllProducts', () => {
     it('Verifica se o retorno da função getAllProducts é um array de não vazio.', async () => {
@@ -46,6 +64,16 @@ describe('Testa conectividade com o banco de dados produtos', () => {
 
       expect(product).to.be.an("object").that.is.not.empty;
       expect(product).to.be.an("object").that.has.all.keys('id', 'name');
+    });
+  });
+
+  describe("Testa a função createProduct", () => {
+    it("Verifica se o retorno da função createProduct é um objeto com chaves 'id' e 'name'.", async () => {
+      sinon.stub(connection, "execute").resolves([{ insertId: 4 }]);
+      const product = await productsModels.createProduct(updatedFakeProducts[3].name);
+      expect(product).to.be.an("object").that.has.all.keys("id", "name");
+      expect(product.id).to.be.equal(4);
+      expect(product.name).to.be.equal(updatedFakeProducts[3].name);
     });
   });
 })

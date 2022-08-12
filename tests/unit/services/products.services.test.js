@@ -23,12 +23,16 @@ describe('Testa a camada de service de products.', () => {
     id: 1,
     name: "Martelo de Thor",
   };
+  const newFakeProduct = {
+    name: "Armadura do homem de ferro"
+  }
   const erroMessage = { message: "Product not found" };
   const response = (res, codeValue) => ({
     response: res,
     code: { code: codeValue },
   });
   beforeEach(sinon.restore);
+
   describe('Testa a função getAllProducts', () => {
     it("Testa se chamando a função getAllProducts recebe o array com todos os produtos.", async () => {
       sinon.stub(productsModels, 'getAllProducts').resolves(fakeProducts);
@@ -38,6 +42,7 @@ describe('Testa a camada de service de products.', () => {
       expect(allProducts).to.be.equal(fakeProducts);
     });
   });
+
   describe("Testa a função getProductById", () => {
     it("Testa se chamando a função getProductById recebe o produto correto.", async () => {
       sinon.stub(productsModels, "getProductById").resolves(response(fakeProduct, 200));
@@ -50,6 +55,7 @@ describe('Testa a camada de service de products.', () => {
       expect(product.response.response.name).to.be.equal(fakeProduct.name);
       expect(product.code.code).to.be.equal(200);
     });
+
     it("Testa se chamando a função getProductById com um id inexistente recebe a mensagem de error correta como resposta.", async () => {
       sinon.stub(productsModels, "getProductById").resolves(response(erroMessage, 404));
       const product = await productsServices.getProductById(4);
@@ -59,10 +65,22 @@ describe('Testa a camada de service de products.', () => {
       expect(product.response.code).to.have.all.keys("code");
       expect(product.response.code.code).to.be.equal(404);
     });
+
     it("Testa se chamando a função getProductById recebe um valor diferente de undefined como resposta.", async () => {
       sinon.stub(productsModels, "getProductById").resolves(undefined);
       const product = await productsServices.getProductById(1);
       expect(product).to.be.not.undefined;
     });
+
+  // describe("Testa a função createProduct", () => {
+    
+  //   it("Testa se chamando a função createProduct recebe um objeto com chaves 'id' e 'name.", async () => {
+  //     sinon.stub(productsModels, "createProduct").resolves(response(newFakeProduct, 201));
+  //     const product = await productsServices.createProduct();
+
+  //     expect(product).to.be.an("array");
+  //     expect(product).to.be.equal(fakeProducts);
+  //   });
+  // });
   });
 });
