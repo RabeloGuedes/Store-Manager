@@ -22,6 +22,7 @@ describe('Testa a camada de controllers de products.', () => {
   const req = {};
   const res = {};
   const erroMessage = { message: "Product not found" };
+  const newProduct = { id: 4, name: "Armadura do homem de ferro" };
   const response = (res, codeValue) => ({
     response: res,
     code: { code: codeValue },
@@ -56,6 +57,41 @@ describe('Testa a camada de controllers de products.', () => {
       req.params = { id: 4 };
       await productControllers.getProductById(req, res);
       expect(res.status.calledWith(404)).to.be.equal(true);
+      expect(res.json.calledWith(erroMessage)).to.be.equal(true);
+    });
+  });
+  describe("Testa a função createProduct em caso de sucesso.", () => {
+    it("Testa se chamando a função createProduct recebe um objeto com chaves 'id' e 'name'.", async () => {
+      sinon.stub(productsServices, "createProduct").resolves(response(newProduct, 201));
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+      req.body = { name: newProduct.name };
+      await productControllers.createProduct(req, res);
+      expect(res.status.calledWith(201)).to.be.equal(true);
+      expect(res.json.calledWith(newProduct)).to.be.equal(true);
+    });
+  });
+  describe("Testa a função createProduct em caso de falha, quando o nome não é passado.", () => {
+    it("Testa se chamando a função createProduct recebe um objeto com chaves 'response' contendo a chave 'message' e 'code' contendo a chave 'code'.", async () => {
+      const erroMessage = { message: '"name" is required' };
+      sinon.stub(productsServices, "createProduct").resolves(response(erroMessage, 400));
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+      req.body = { name: "" };
+      await productControllers.createProduct(req, res);
+      expect(res.status.calledWith(400)).to.be.equal(true);
+      expect(res.json.calledWith(erroMessage)).to.be.equal(true);
+    });
+  });
+  describe("Testa a função createProduct em caso de falha, quando o nome não é passado.", () => {
+    it("Testa se chamando a função createProduct recebe um objeto com chaves 'response' contendo a chave 'message' e 'code' contendo a chave 'code'.", async () => {
+      const erroMessage = { message: '"name" length must be at least 5 characters long' };
+      sinon.stub(productsServices, "createProduct").resolves(response(erroMessage, 422));
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+      req.body = { name: "name" };
+      await productControllers.createProduct(req, res);
+      expect(res.status.calledWith(422)).to.be.equal(true);
       expect(res.json.calledWith(erroMessage)).to.be.equal(true);
     });
   });
