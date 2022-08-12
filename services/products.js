@@ -15,7 +15,26 @@ const getProductById = async (id) => {
   return response;
 };
 
+const createProduct = async (name) => {
+  if (!name) {
+    return ({
+      response: { message: '"name" is required' },
+      code: { code: 400 },
+    });
+  } if (name.length < 5) {
+    return ({
+      response: { message: '"name" length must be at least 5 characters long' },
+      code: { code: 422 },
+    });
+  } const newProduct = await productsModels.createProduct(name);
+  return {
+    response: newProduct,
+    code: { code: 201 },
+  };
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
+  createProduct,
 };
