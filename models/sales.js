@@ -13,8 +13,16 @@ const createSale = async (body) => {
 };
 
 const getAllSales = async () => {
-  const [allSales] = await connection.execute(`SELECT product_id, sale_id,
-  quantity FROM sales_products`);
+  const [allSales] = await connection.execute(`
+  SELECT  sp.sale_id,
+  s.date,
+  sp.product_id,
+  sp.quantity
+  FROM sales_products as sp
+  INNER JOIN sales as s
+  ON sp.sale_id = s.id
+  ORDER BY s.id,
+  sp.product_id`);
   return allSales;
 };
 

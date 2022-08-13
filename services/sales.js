@@ -67,7 +67,21 @@ const createSale = async (body) => {
   return response;
 };
 
-const getAllSales = () => salesModels.getAllSales();
+const serialize = (array) => {
+  const response = [];
+  array.forEach((sale) => {
+    const serializedSale = {
+      saleId: sale.sale_id,
+      date: sale.date,
+      productId: sale.product_id,
+      quantity: sale.quantity,
+    };
+    response.push(serializedSale);
+  });
+  return response;
+};
+
+const getAllSales = async () => serialize(await salesModels.getAllSales());
 
 module.exports = {
   createSale,
