@@ -12,6 +12,13 @@ const createSale = async (body) => {
   return newSale.insertId;
 };
 
+const getAllSales = async () => {
+  const [allSales] = await connection.execute(`SELECT product_id, sale_id,
+  quantity FROM sales_products`);
+  return allSales;
+};
+
 module.exports = {
   createSale,
+  getAllSales,
 };
