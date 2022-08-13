@@ -81,7 +81,40 @@ const errors = {
     code: { code: 422 },
   },
   invalidProductId: { response: { message: 'Product not found' }, code: { code: 404 } },
+  noSale: { response: { message: 'Sale not found' }, code: { code: 404 } },
 };
+  const registredSales = [
+    {
+      saleId: 1,
+      date: "2022-08-13T17:33:12.000Z",
+      productId: 1,
+      quantity: 5
+    },
+    {
+      saleId: 1,
+      date: "2022-08-13T17:33:12.000Z",
+      productId: 2,
+      quantity: 10
+    },
+    {
+      saleId: 2,
+      date: "2022-08-13T17:33:12.000Z",
+      productId: 3,
+      quantity: 15
+    }
+  ];
+  const firstRegistredSale = [
+    {
+      date: "2022-08-13T17:33:12.000Z",
+      productId: 1,
+      quantity: 5
+    },
+    {
+      date: "2022-08-13T17:33:12.000Z",
+      productId: 2,
+      quantity: 10
+    },
+  ];
 
   const expectedFakeResponse = 3;
 
@@ -135,6 +168,44 @@ const errors = {
       expect(salesInfos).to.be.an('object').that.has.all.keys('response', 'code');
       expect(salesInfos.response.message).to.be.equal(errors.noQuantity.response.message);
       expect(salesInfos.code.code).to.be.equal(errors.noQuantity.code.code);
+    });
+  });
+
+  describe('Testa a função getAllSales', () => {
+
+    it("Verifica se o retorno da função getAllSales é um array que contém objetos com os produtos de cada venda.", async () => {
+      sinon.stub(salesModels, 'getAllSales').resolves(registredSales);
+      const salesInfos = await salesServices.getAllSales();
+
+      expect(salesInfos).to.be.an('array');
+      expect(salesInfos[0]).to.be.an('object').that.has.all.keys('saleId', 'date', 'productId', 'quantity');
+      expect(salesInfos[1]).to.be.an('object').that.has.all.keys('saleId', 'date', 'productId', 'quantity');
+      expect(salesInfos[2]).to.be.an('object').that.has.all.keys('saleId', 'date', 'productId', 'quantity');
+    });
+  });
+
+  describe('Testa a função getSaleById', () => {
+
+    it("Verifica se o retorno da função getSaleById, em caso de sucesso, é um objeto que contém objetos com os produtos da venda requisitada.", async () => {
+      sinon.stub(salesModels, 'getSaleById').resolves(firstRegistredSale);
+      const salesInfos = await salesServices.getSaleById({ params: { id: 1 } });
+
+      expect(salesInfos).to.be.an('object').that.has.all.keys('response', 'code');
+      expect(salesInfos.response[0]).to.be.an('object').that.has.all.keys('date', 'productId', 'quantity');
+      expect(salesInfos.response[0].date).to.be.equal(firstRegistredSale[0].date);
+      expect(salesInfos.response[0].quantity).to.be.equal(firstRegistredSale[0].quantity);
+      expect(salesInfos.code).to.be.an('object').that.has.all.keys('code');
+      expect(salesInfos.code.code).to.be.a('number').that.is.equal(200);
+    });
+  });
+
+    describe('Testa a função getSaleById', () => {
+
+    it("Verifica se o retorno da função getSaleById, em caso de falha, é um array que contém objetos com os produtos da venda requisitada.", async () => {
+      sinon.stub(salesModels, 'getSaleById').resolves(firstRegistredSale);
+      const saleNotFound = await salesServices.getSaleById({ params: { id: 999 } });
+
+      expect(saleNotFound).to.be.an('object').that.has.all.keys('response', 'code');
     });
   });
 });

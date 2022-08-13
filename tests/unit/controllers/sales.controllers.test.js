@@ -90,6 +90,51 @@ describe('Testa a camada de controllers de sales.', () => {
     },
     code: { code: 201 },
   };
+
+  const allSalesResponse = [
+    {
+      response: [
+        {
+          saleId: 1,
+          date: "2022-08-13T17:33:12.000Z",
+          productId: 1,
+          quantity: 5
+        },
+        {
+          saleId: 1,
+          date: "2022-08-13T17:33:12.000Z",
+          productId: 2,
+          quantity: 10
+        },
+        {
+          saleId: 2,
+          date: "2022-08-13T17:33:12.000Z",
+          productId: 3,
+          quantity: 15
+        }
+      ],
+      code: { code: 200 },
+    }
+  ];
+
+  const firstSaleResponse = {
+      response: [
+        {
+          saleId: 1,
+          date: "2022-08-13T17:33:12.000Z",
+          productId: 1,
+          quantity: 5
+        },
+        {
+          saleId: 1,
+          date: "2022-08-13T17:33:12.000Z",
+          productId: 2,
+          quantity: 10
+        }
+      ],
+      code: { code: 200 },
+  };
+  const noSaleFound = { response: { message: 'Sale not found' }, code: { code: 404 } }
   const req = {};
   const res = {};
 
@@ -172,6 +217,46 @@ describe('Testa a camada de controllers de sales.', () => {
       await salesControllers.createSale(req, res);
       expect(res.status.calledWith(errors.invalidQuantity.code.code)).to.be.equal(true);
       expect(res.json.calledWith(errors.invalidQuantity.response)).to.be.equal(true);
+    });
+  });
+
+  describe('Testa a função getAllSales.', () => {
+
+    it('Testa se chamando a função getAllSales recebe um array com todas as vendas.', async () => {
+      sinon.stub(salesServices, 'getAllSales').resolves(allSalesResponse[0].response);
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+      await salesControllers.getAllSales(req, res);
+      expect(res.status.calledWith(allSalesResponse[0].code.code)).to.be.equal(true);
+      expect(res.json.calledWith(allSalesResponse[0].response)).to.be.equal(true);
+    });
+  });
+
+  describe('Testa a função getSaleById em caso de sucesso.', () => {
+
+    it('Testa se chamando a função getSaleById recebe um objeto com os id dos produtos comprados e suas quantidades.', async () => {
+      sinon.stub(salesServices, 'getSaleById').resolves(firstSaleResponse);
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+      req.params = {};
+      req.params.id = 1;
+      await salesControllers.getSaleById(req, res);
+      expect(res.status.calledWith(firstSaleResponse.code.code)).to.be.equal(true);
+      expect(res.json.calledWith(firstSaleResponse.response)).to.be.equal(true);
+    });
+  });
+
+  describe('Testa a função getSaleById em caso de falha.', () => {
+
+    it('Testa se chamando a função getSaleById recebe um objeto com a mensagem de erro correta.', async () => {
+      sinon.stub(salesServices, 'getSaleById').resolves(noSaleFound);
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+      req.params = {};
+      req.params.id = 999;
+      await salesControllers.getSaleById(req, res);
+      expect(res.status.calledWith(noSaleFound.code.code)).to.be.equal(true);
+      expect(res.json.calledWith(noSaleFound.response)).to.be.equal(true);
     });
   });
 });

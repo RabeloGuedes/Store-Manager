@@ -68,7 +68,7 @@ const createSale = async (body) => {
   return response;
 };
 
-const serialize = (array) => {
+const serializeAllSales = (array) => {
   const response = [];
   array.forEach((sale) => {
     const serializedSale = {
@@ -82,14 +82,27 @@ const serialize = (array) => {
   return response;
 };
 
-const getAllSales = async () => serialize(await salesModels.getAllSales());
+const serializeSale = (array) => {
+  const response = [];
+  array.forEach((sale) => {
+    const serializedSale = {
+      date: sale.date,
+      productId: sale.product_id,
+      quantity: sale.quantity,
+    };
+    response.push(serializedSale);
+  });
+  return response;
+};
+
+const getAllSales = async () => serializeAllSales(await salesModels.getAllSales());
 
 const getSaleById = async ({ params: { id } }) => {
   const sale = await salesModels.getSaleById(id);
   if (!sale.length) return errors.noSale;
   return (
     {
-      response: serialize(sale),
+      response: serializeSale(sale),
       code: { code: 200 },
     }
   );
