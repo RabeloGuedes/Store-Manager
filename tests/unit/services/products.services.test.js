@@ -158,6 +158,30 @@ describe('Testa a camada de service de products.', () => {
       expect(product.response.message).to.be.a('string').that.is.equal(error.response.message);
       expect(product.code.code).to.be.a('number').that.is.equal(error.code.code);
     });
+  });
 
+  describe("Testa a função deleteProduct", () => {
+    
+    it("Testa se chamando a função deleteProduct, em caso de sucesso, o produto é deletado.", async () => {
+      const productToBeDeleted = { id: 1, name: "Machado de Thor Stormbreaker" };
+      const responseOK = { response: '', code: { code: 204 } };
+      sinon.stub(productsModels, "deleteProduct").resolves(productToBeDeleted.id);
+      const product = await productsServices.deleteProduct({ id } = productToBeDeleted);
+
+      expect(product).to.be.an('object').that.has.all.keys('response', 'code');
+      expect(product.response).to.be.a('string').that.is.equal(responseOK.response);
+      expect(product.code).to.be.a('number').that.is.equal(responseOK.code.code);
+    });
+
+    it("Testa se chamando a função deleteProduct, em caso de falha, a mensagem de erro correta é mostrada.", async () => {
+      const productToBeDeleted = { id: 999, name: "Machado de Thor Stormbreaker" };
+      const reponseFailed = { response: { message: 'Product not found' }, code: { code: 404 } };
+      sinon.stub(productsModels, "deleteProduct").resolves(productToBeDeleted.id);
+      const product = await productsServices.deleteProduct({ id } = productToBeDeleted);
+
+      expect(product).to.be.an('object').that.has.all.keys('response', 'code');
+      expect(product.response.message).to.be.a('string').that.is.equal(reponseFailed.response.message);
+      expect(product.code).to.be.a('number').that.is.equal(reponseFailed.code.code);
+    });
   });
 });

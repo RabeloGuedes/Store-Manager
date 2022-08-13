@@ -88,4 +88,12 @@ describe('Testa a camada models de produtos', () => {
       await productsModels.updateProduct(newProductInfos.name, newProductInfos.id);
     });
   });
+
+    describe("Testa a função deleteProduct", () => {
+      it("Verifica se a função deleteProduct remove o item requerido corretamente.", async () => {
+      const productToBeDeleted = { id: 1, name: "Machado de Thor Stormbreaker"};
+      sinon.stub(connection, "execute").resolves();
+      await productsModels.deleteProduct(productToBeDeleted.id);
+    });
+  });
 })

@@ -23,7 +23,7 @@ const updateProduct = async (req, res) => {
 };
 
 const deleteProduct = async (req, res) => {
-  const { response, code: { code } } = await productsServices.deleteProduct(req.params);
+  const { response, code } = await productsServices.deleteProduct(req.params);
   res.status(code).json(response);
 };
 

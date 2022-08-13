@@ -52,11 +52,11 @@ const deleteProduct = async ({ id }) => {
   const isThereAProduct = await productsModels.getProductById(id);
   if (!isThereAProduct) {
     return ({ response: { message: 'Product not found' },
-      code: { code: 404 } });
+      code: 404 });
   } await productsModels.deleteProduct(id);
   return {
     response: '',
-    code: { code: 204 },
+    code: 204,
   };
 };
 

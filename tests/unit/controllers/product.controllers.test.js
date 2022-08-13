@@ -168,4 +168,16 @@ describe('Testa a camada de controllers de products.', () => {
       expect(res.json.calledWith(errorMessage.response)).to.be.equal(true);
     });
   });
+
+  describe("Testa a função deleteProduct em caso de sucesso.", () => {
+    it("Testa se chamando a função deleteProduct recebe o código 204.", async () => {
+      const productToBeDeleted = { id: 1, name: "Machado de Thor Stormbreaker" };
+      const responseOK = { response: '', code: { code: 204 } };
+      sinon.stub(productsServices, "deleteProduct").resolves({ id } = productToBeDeleted);
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+      req.params = { id: productToBeDeleted.id }; 
+      await productControllers.deleteProduct(req, res);
+    });
+  });
 });
