@@ -67,9 +67,6 @@ const createSale = async (body) => {
   return response;
 };
 
-const getAllSales = () => salesModels.getAllSales();
-
 module.exports = {
   createSale,
-  getAllSales,
 };

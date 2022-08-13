@@ -6,12 +6,6 @@ const createSale = async (req, res) => {
   res.status(code).json(response);
 };
 
-const getAllSales = async (_req, res) => {
-  const allSales = await salesServices.getAllSales();
-  res.status(200).json(allSales);
-};
-
 module.exports = {
   createSale,
-  getAllSales,
 };
