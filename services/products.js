@@ -33,8 +33,24 @@ const createProduct = async (name) => {
   };
 };
 
+const updateProduct = async ({ id }, { name }) => {
+  const isThereAProduct = await productsModels.getProductById(id);
+  if (!name) {
+    return ({ response: { message: '"name" is required' }, code: { code: 400 } });
+  } if (name.length < 5) {
+    return ({ response: { message: '"name" length must be at least 5 characters long' },
+      code: { code: 422 } });
+  } if (!isThereAProduct) {
+    return ({ response: { message: 'Product not found' },
+      code: { code: 404 } });
+  } await productsModels.updateProduct(name, id);
+    return ({ response: { id, name },
+      code: { code: 200 } });
+};
+
 module.exports = {
   getAllProducts,
   getProductById,
   createProduct,
+  updateProduct,
 };
