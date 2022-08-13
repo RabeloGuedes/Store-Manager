@@ -10,6 +10,7 @@ const errors = {
     code: { code: 422 },
   },
   invalidProductId: { response: { message: 'Product not found' }, code: { code: 404 } },
+  noSale: { response: { message: 'Sale not found' }, code: { code: 404 } },
 };
 
 // First to be fired
@@ -83,7 +84,19 @@ const serialize = (array) => {
 
 const getAllSales = async () => serialize(await salesModels.getAllSales());
 
+const getSaleById = async ({ params: { id } }) => {
+  const sale = await salesModels.getSaleById(id);
+  if (!sale.length) return errors.noSale;
+  return (
+    {
+      response: serialize(sale),
+      code: { code: 200 },
+    }
+  );
+};
+
 module.exports = {
   createSale,
   getAllSales,
+  getSaleById,
 };
