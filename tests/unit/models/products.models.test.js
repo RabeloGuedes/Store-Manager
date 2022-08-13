@@ -41,6 +41,11 @@ describe('Testa a camada models de produtos', () => {
       name: "Armadura do homem ferro",
     },
   ];
+
+  const newProductInfos = {
+    id: 1,
+    name: "Machado de Thor Stormbreaker"
+  };
   beforeEach(sinon.restore);
   describe('Testa a função getAllProducts', () => {
     it('Verifica se o retorno da função getAllProducts é um array de não vazio.', async () => {
@@ -74,6 +79,13 @@ describe('Testa a camada models de produtos', () => {
       expect(product).to.be.an("object").that.has.all.keys("id", "name");
       expect(product.id).to.be.equal(4);
       expect(product.name).to.be.equal(updatedFakeProducts[3].name);
+    });
+  });
+
+  describe("Testa a função updateProduct", () => {
+    it("Verifica se a função updateProduct cadastra a atualização.", async () => {
+      sinon.stub(connection, "execute").resolves();
+      await productsModels.updateProduct(newProductInfos.name, newProductInfos.id);
     });
   });
 })
