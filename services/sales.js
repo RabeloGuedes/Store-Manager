@@ -2,14 +2,14 @@ const salesModels = require('../models/sales');
 const productsModels = require('../models/products');
 
 const errors = {
-  invalidProductId: { response: { message: '"productId" is required' }, code: { code: 400 } },
+  noProductId: { response: { message: '"productId" is required' }, code: { code: 400 } },
   noQuantity: { response: { message: '"quantity" is required' }, code: { code: 400 } },
   invalidQuantity: {
     response:
       { message: '"quantity" must be greater than or equal to 1' },
     code: { code: 422 },
   },
-  noProductId: { response: { message: 'Product not found' }, code: { code: 404 } },
+  invalidProductId: { response: { message: 'Product not found' }, code: { code: 404 } },
 };
 
 // First to be fired
@@ -52,8 +52,8 @@ const isThereQuantity = (body) => {
 };
 
 const createSale = async (body) => {
-  if (!isThereProductId(body)) return errors.invalidProductId;
-  if (!(await isProductIdValid(body))) return errors.noProductId;
+  if (!isThereProductId(body)) return errors.noProductId;
+  if (!(await isProductIdValid(body))) return errors.invalidProductId;
   if (!isQuantityValid(body)) return errors.invalidQuantity;
   if (!isThereQuantity(body)) return errors.noQuantity;
   const saleId = await salesModels.createSale(body);
