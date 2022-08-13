@@ -108,8 +108,16 @@ const getSaleById = async ({ params: { id } }) => {
   );
 };
 
+const deleteSale = async ({ id }) => {
+  const sale = await salesModels.getSaleById(id);
+  if (!sale.length) return errors.noSale;
+  await salesModels.deleteSale(id);
+  return { response: '', code: { code: 204 } };
+};
+
 module.exports = {
   createSale,
   getAllSales,
   getSaleById,
+  deleteSale,
 };
