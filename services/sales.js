@@ -52,11 +52,23 @@ const isThereQuantity = (body) => {
   return isThereAQuantityKey;
 };
 
-const createSale = async (body) => {
+const requestValidation = async (body) => {
+  if (!isQuantityValid(body)) return true;
+  if (!isThereQuantity(body)) return true;
+  if (!isThereProductId(body)) return true;
+  if (!(await isProductIdValid(body))) return true;
+  return false;
+};
+
+const checkTheError = async (body) => {
   if (!isThereProductId(body)) return errors.noProductId;
   if (!(await isProductIdValid(body))) return errors.invalidProductId;
   if (!isQuantityValid(body)) return errors.invalidQuantity;
   if (!isThereQuantity(body)) return errors.noQuantity;
+};
+
+const createSale = async (body) => {
+  if (await requestValidation(body)) return checkTheError(body);
   const saleId = await salesModels.createSale(body);
   const response = {
     response: { 
@@ -100,12 +112,8 @@ const getAllSales = async () => serializeAllSales(await salesModels.getAllSales(
 const getSaleById = async ({ params: { id } }) => {
   const sale = await salesModels.getSaleById(id);
   if (!sale.length) return errors.noSale;
-  return (
-    {
-      response: serializeSale(sale),
-      code: { code: 200 },
-    }
-  );
+  return ({ response: serializeSale(sale),
+      code: { code: 200 } });
 };
 
 const deleteSale = async ({ id }) => {
@@ -115,9 +123,24 @@ const deleteSale = async ({ id }) => {
   return { response: '', code: { code: 204 } };
 };
 
+const updateSale = async (req, body) => {
+  console.log(req, body);
+  // const sale = await salesModels.getSaleById(req.params.id);
+  // if (!sale.length) {
+  //   return errors.noSale;
+  // } if (requestValidation(body)) {
+  //   return checkTheError(body);
+// }
+return { response: { message: 'Chegou' }, code: { code: 204 } };
+  // await salesModels.updateSale(req.params.id, body);
+  // const updatedSale = await getSaleById(req);
+  // return updatedSale;
+};
+
 module.exports = {
   createSale,
   getAllSales,
   getSaleById,
   deleteSale,
+  updateSale,
 };

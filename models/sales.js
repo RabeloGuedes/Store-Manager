@@ -45,9 +45,20 @@ const deleteSale = async (id) => {
   await connection.execute('DELETE FROM sales_products WHERE sale_id = ?', [id]);
 };
 
+const updateSale = async (saleId, body) => {
+  body.forEach(async ({ productId, quantity }) => {
+    await connection.execute(`
+    UPDATE sales_products
+    set product_id = ?,
+    quantity = ?
+    WHERE sale_id = ?`, [productId, quantity, saleId]);
+  });
+};
+
 module.exports = {
   createSale,
   getAllSales,
   getSaleById,
   deleteSale,
+  updateSale,
 };
