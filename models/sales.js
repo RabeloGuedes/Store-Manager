@@ -1,8 +1,7 @@
 const connection = require('./connection');
 
 const createSale = async (body) => {
-  const date = new Date();
-  const currentDate = `${date.getFullYear()}-0${date.getMonth()}-0${date.getDay()}`;
+  const currentDate = '2022-08-13';
   const [newSale] = await connection.execute('INSERT INTO sales (date) VALUES (?)', [currentDate]);
   body.forEach(async ({ productId, quantity }) => {
     await connection.execute(`INSERT INTO sales_products

@@ -199,13 +199,41 @@ const errors = {
     });
   });
 
-    describe('Testa a função getSaleById', () => {
+  describe('Testa a função getSaleById', () => {
 
     it("Verifica se o retorno da função getSaleById, em caso de falha, é um array que contém objetos com os produtos da venda requisitada.", async () => {
       sinon.stub(salesModels, 'getSaleById').resolves(firstRegistredSale);
       const saleNotFound = await salesServices.getSaleById({ params: { id: 999 } });
 
       expect(saleNotFound).to.be.an('object').that.has.all.keys('response', 'code');
+    });
+  });
+  
+  describe('Testa a função deleteSale', () => {
+
+    it("Verifica se o retorno da função deleteSale, em caso de sucesso, é um objeto com o código 204.", async () => {
+      const toDeleteSale = { id: 1 }
+      const responseOk = { response: '', code: { code: 204 } };
+      sinon.stub(salesModels, 'deleteSale').resolves();
+      const responseInfo = await salesServices.deleteSale({ id } = toDeleteSale );
+
+      expect(responseInfo).to.be.an('object').that.has.all.keys('response', 'code');
+      expect(responseInfo.response).to.be.a('string').that.has.is.equal('');
+      expect(responseInfo.code).to.be.an('object').that.has.all.keys('code');
+      expect(responseInfo.code.code).to.be.a('number').that.has.is.equal(responseOk.code.code);
+    });
+
+    it("Verifica se o retorno da função deleteSale, em caso de falha, é um objeto com o código 404 e uma mensagem de erro.", async () => {
+      const toDeleteSale = { id: 999 }
+      const responseFailed = { response: { message: 'Sale not found' }, code: { code: 404 } };
+      sinon.stub(salesModels, 'deleteSale').resolves();
+      const responseInfo = await salesServices.deleteSale({ id } = toDeleteSale );
+
+      expect(responseInfo).to.be.an('object').that.has.all.keys('response', 'code');
+      expect(responseInfo.response).to.be.an('object').that.has.all.keys('message');
+      // expect(responseInfo.response).to.be.a('string').that.is.equal(responseFailed.message);
+      expect(responseInfo.code).to.be.an('object').that.has.all.keys('code');
+      expect(responseInfo.code.code).to.be.a('number').that.has.is.equal(responseFailed.code.code);
     });
   });
 });

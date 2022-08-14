@@ -259,4 +259,32 @@ describe('Testa a camada de controllers de sales.', () => {
       expect(res.json.calledWith(noSaleFound.response)).to.be.equal(true);
     });
   });
+
+  describe('Testa a função deleteSale em caso de sucesso.', () => {
+
+    it('Testa se chamando a função deleteSale recebe o código 204.', async () => {
+      const responseInfo = { response: '', code: { code: 204 } };
+      sinon.stub(salesServices, 'deleteSale').resolves(responseInfo);
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+      req.params = {};
+      req.params.id = 1;
+      await salesControllers.deleteSale(req, res);
+      expect(res.status.calledWith(responseInfo.code.code)).to.be.equal(true);
+    });
+  });
+  describe('Testa a função deleteSale em caso de falha.', () => {
+
+    it('Testa se chamando a função deleteSale recebe o código 404 e a mensagem de erro correta.', async () => {
+      const responseInfo = { response: { message: 'Product not found' }, code: { code: 404 } };
+      sinon.stub(salesServices, 'deleteSale').resolves(responseInfo);
+      res.status = sinon.stub().returns(res);
+      res.json = sinon.stub().returns();
+      req.params = {};
+      req.params.id = 999;
+      await salesControllers.deleteSale(req, res);
+      expect(res.status.calledWith(responseInfo.code.code)).to.be.equal(true);
+      expect(res.json.calledWith(responseInfo.response)).to.be.equal(true);
+    });
+  });
 });

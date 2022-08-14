@@ -76,7 +76,7 @@ describe('Testa a camada models de sales', () => {
     });
     });
   
-    describe('Testa a função getSaleById', () => {
+  describe('Testa a função getSaleById', () => {
     it('Verifica se o retorno da função getSaleById é um array que contém objetos com os produtos da venda requisitada.', async () => {
       sinon.stub(connection, 'execute').resolves([fisrtRegistredSales]);
       const sale = await salesModels.getSaleById(1);
@@ -84,6 +84,13 @@ describe('Testa a camada models de sales', () => {
       expect(sale).to.be.an('array');
       expect(sale[0]).to.be.an('object').that.has.all.keys('date', 'productId', 'quantity');
       expect(sale[1]).to.be.an('object').that.has.all.keys('date', 'productId', 'quantity');
+    });
+  });
+  
+  describe('Testa a função deleteSale', () => {
+    it('Verifica se a função deleteSale deleta a venda requisitada.', async () => {
+      sinon.stub(connection, 'execute').resolves();
+      await salesModels.deleteSale(1);
     });
   });
 })
