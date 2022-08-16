@@ -1,83 +1,9 @@
 const salesModels = require('../models/sales');
-const productsModels = require('../models/products');
-
-const errors = {
-  noProductId: { response: { message: '"productId" is required' }, code: { code: 400 } },
-  noQuantity: { response: { message: '"quantity" is required' }, code: { code: 400 } },
-  invalidQuantity: {
-    response:
-      { message: '"quantity" must be greater than or equal to 1' },
-    code: { code: 422 },
-  },
-  invalidProductId: { response: { message: 'Product not found' }, code: { code: 404 } },
-  noSale: { response: { message: 'Sale not found' }, code: { code: 404 } },
-};
-
-// First to be fired
-const isThereProductId = (body) => {
-  let isThereAProductIdKey = true; 
-  body.forEach((product) => {
-    const isThereAProperty = Object.prototype.hasOwnProperty.call(product, 'productId');
-    if (!isThereAProperty) isThereAProductIdKey = false;
-  });
-  return isThereAProductIdKey;
-};
-
-// Second to be fired
-const isProductIdValid = async (body) => {
-  const allProducts = await productsModels.getAllProducts();  
-  let isThereAValidProductIdKey = true; 
-  body.forEach(({ productId }) => {
-    const isThereAProduct = allProducts.some(({ id }) => Number(productId) === Number(id));
-    if (!isThereAProduct) isThereAValidProductIdKey = false; 
-  });
-  return isThereAValidProductIdKey;
-};
-
-// Third to be fired 
-const isQuantityValid = (body) => {
-  let isTheQuantityValid = true; 
-  body.forEach((product) => {
-    if (product.quantity <= 0) isTheQuantityValid = false;
-  });
-  return isTheQuantityValid;
-};
-
-// Last one to be fired
-const isThereQuantity = (body) => {
-  let isThereAQuantityKey = true; 
-  body.forEach((product) => {
-    if (!product.quantity) isThereAQuantityKey = false;
-  });
-  return isThereAQuantityKey;
-};
-
-const requestValidation = async (body) => {
-  if (!isQuantityValid(body)) return true;
-  if (!isThereQuantity(body)) return true;
-  if (!isThereProductId(body)) return true;
-  if (!(await isProductIdValid(body))) return true;
-  return false;
-};
-
-const checkTheError = async (body) => {
-  if (!isThereProductId(body)) return errors.noProductId;
-  if (!(await isProductIdValid(body))) return errors.invalidProductId;
-  if (!isQuantityValid(body)) return errors.invalidQuantity;
-  if (!isThereQuantity(body)) return errors.noQuantity;
-};
+const { success } = require('./util');
 
 const createSale = async (body) => {
-  if (await requestValidation(body)) return checkTheError(body);
   const saleId = await salesModels.createSale(body);
-  const response = {
-    response: { 
-      id: saleId,
-      itemsSold: body,
-    },
-    code: { code: 201 },
-  };
-  return response;
+  return success.createSale(saleId, body);
 };
 
 const serializeAllSales = (array) => {
@@ -94,47 +20,24 @@ const serializeAllSales = (array) => {
   return response;
 };
 
-const serializeSale = (array) => {
-  const response = [];
-  array.forEach((sale) => {
-    const serializedSale = {
-      date: sale.date,
-      productId: sale.product_id,
-      quantity: sale.quantity,
-    };
-    response.push(serializedSale);
-  });
-  return response;
-};
-
 const getAllSales = async () => serializeAllSales(await salesModels.getAllSales());
 
-const getSaleById = async ({ params: { id } }) => {
+const getSaleById = async ({ id }) => {
   const sale = await salesModels.getSaleById(id);
-  if (!sale.length) return errors.noSale;
-  return ({ response: serializeSale(sale),
-      code: { code: 200 } });
+  return success.getSaleById(sale);
 };
 
 const deleteSale = async ({ id }) => {
-  const sale = await salesModels.getSaleById(id);
-  if (!sale.length) return errors.noSale;
   await salesModels.deleteSale(id);
-  return { response: '', code: { code: 204 } };
+  return success.deleteProductOrSale();
 };
 
-const updateSale = async (req, body) => {
-  console.log(req, body);
-  // const sale = await salesModels.getSaleById(req.params.id);
-  // if (!sale.length) {
-  //   return errors.noSale;
-  // } if (requestValidation(body)) {
-  //   return checkTheError(body);
-// }
-return { response: { message: 'Chegou' }, code: { code: 204 } };
-  // await salesModels.updateSale(req.params.id, body);
-  // const updatedSale = await getSaleById(req);
-  // return updatedSale;
+const updateSale = async ({ params, body }) => {
+  const { id } = params;
+  body.forEach(async ({ productId, quantity }) => {
+    salesModels.updateSale(id, productId, quantity);
+  });
+  return success.updateSale(params, body);
 };
 
 module.exports = {
