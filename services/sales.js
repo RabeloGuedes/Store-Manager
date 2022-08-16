@@ -1,5 +1,5 @@
 const salesModels = require('../models/sales');
-const { success } = require('./util');
+const { success } = require('../util');
 
 const createSale = async (body) => {
   const saleId = await salesModels.createSale(body);

@@ -1,5 +1,5 @@
 const productsModels = require('../models/products');
-const { success } = require('./util');
+const { success } = require('../util');
 
 const getAllProducts = () => productsModels.getAllProducts();
 
