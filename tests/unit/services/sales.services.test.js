@@ -129,45 +129,7 @@ const errors = {
       expect(salesInfos).to.be.an('object').that.has.all.keys('response', 'code');
       expect(salesInfos.response.id).to.be.equal(expectedFakeResponse);
       expect(salesInfos.response.itemsSold).to.be.equal(fakeItemsSold);
-      expect(salesInfos.code.code).to.be.equal(201);
-    });
-
-    it("Testa se chamando a função createSale sem o 'productId' recebe a mensagem de erro correta.", async () => {
-      const salesInfos = await salesServices.createSale(fakeSoldWithoutProductId);
-
-      expect(salesInfos).to.be.an('object').that.has.all.keys('response', 'code');
-      expect(salesInfos.response.message).to.be.equal(errors.noProductId.response.message);
-      expect(salesInfos.code.code).to.be.equal(errors.noProductId.code.code);
-    });
-
-    it("Testa se chamando a função createSale com o 'productId' inválido recebe a mensagem de erro correta.", async () => {
-      const salesInfos = await salesServices.createSale(fakeSoldWithInvalidProductId);
-
-      expect(salesInfos).to.be.an('object').that.has.all.keys('response', 'code');
-      expect(salesInfos.response.message).to.be.equal(errors.invalidProductId.response.message);
-      expect(salesInfos.code.code).to.be.equal(errors.invalidProductId.code.code);
-    });
-
-    it("Testa se chamando a função createSale com o 'quantity' menor que zero recebe a mensagem de erro correta.", async () => {
-      const salesInfos = await salesServices.createSale(fakeSoldWithNegativeQuantity);
-
-      expect(salesInfos).to.be.an('object').that.has.all.keys('response', 'code');
-      expect(salesInfos.response.message).to.be.equal(errors.invalidQuantity.response.message);
-      expect(salesInfos.code.code).to.be.equal(errors.invalidQuantity.code.code);
-    });
-    it("Testa se chamando a função createSale com o 'quantity' igual a zero recebe a mensagem de erro correta.", async () => {
-      const salesInfos = await salesServices.createSale(fakeSoldWithZeroQuantity);
-
-      expect(salesInfos).to.be.an('object').that.has.all.keys('response', 'code');
-      expect(salesInfos.response.message).to.be.equal(errors.invalidQuantity.response.message);
-      expect(salesInfos.code.code).to.be.equal(errors.invalidQuantity.code.code);
-    });
-    it("Testa se chamando a função createSale sem o 'quantity' recebe a mensagem de erro correta.", async () => {
-      const salesInfos = await salesServices.createSale(fakeSoldWithoutQuantity);
-
-      expect(salesInfos).to.be.an('object').that.has.all.keys('response', 'code');
-      expect(salesInfos.response.message).to.be.equal(errors.noQuantity.response.message);
-      expect(salesInfos.code.code).to.be.equal(errors.noQuantity.code.code);
+      expect(salesInfos.code).to.be.equal(201);
     });
   });
 
@@ -194,18 +156,7 @@ const errors = {
       expect(salesInfos.response[0]).to.be.an('object').that.has.all.keys('date', 'productId', 'quantity');
       expect(salesInfos.response[0].date).to.be.equal(firstRegistredSale[0].date);
       expect(salesInfos.response[0].quantity).to.be.equal(firstRegistredSale[0].quantity);
-      expect(salesInfos.code).to.be.an('object').that.has.all.keys('code');
-      expect(salesInfos.code.code).to.be.a('number').that.is.equal(200);
-    });
-  });
-
-  describe('Testa a função getSaleById', () => {
-
-    it("Verifica se o retorno da função getSaleById, em caso de falha, é um array que contém objetos com os produtos da venda requisitada.", async () => {
-      sinon.stub(salesModels, 'getSaleById').resolves(firstRegistredSale);
-      const saleNotFound = await salesServices.getSaleById({ params: { id: 999 } });
-
-      expect(saleNotFound).to.be.an('object').that.has.all.keys('response', 'code');
+      expect(salesInfos.code).to.be.a('number').that.is.equal(200);
     });
   });
   
@@ -213,27 +164,40 @@ const errors = {
 
     it("Verifica se o retorno da função deleteSale, em caso de sucesso, é um objeto com o código 204.", async () => {
       const toDeleteSale = { id: 1 }
-      const responseOk = { response: '', code: { code: 204 } };
+      const responseOk = { response: '', code: 204 };
       sinon.stub(salesModels, 'deleteSale').resolves();
       const responseInfo = await salesServices.deleteSale({ id } = toDeleteSale );
 
       expect(responseInfo).to.be.an('object').that.has.all.keys('response', 'code');
       expect(responseInfo.response).to.be.a('string').that.has.is.equal('');
-      expect(responseInfo.code).to.be.an('object').that.has.all.keys('code');
-      expect(responseInfo.code.code).to.be.a('number').that.has.is.equal(responseOk.code.code);
+      expect(responseInfo.code).to.be.a('number').that.has.is.equal(responseOk.code);
     });
+  });
 
-    it("Verifica se o retorno da função deleteSale, em caso de falha, é um objeto com o código 404 e uma mensagem de erro.", async () => {
-      const toDeleteSale = { id: 999 }
-      const responseFailed = { response: { message: 'Sale not found' }, code: { code: 404 } };
-      sinon.stub(salesModels, 'deleteSale').resolves();
-      const responseInfo = await salesServices.deleteSale({ id } = toDeleteSale );
+  describe('Testa a função updateSale', () => {
+
+    it("Verifica se o retorno da função updateSale, em caso de sucesso, é um objeto com o código 200.", async () => {
+      const params = { id: 1 }
+      const body = [
+        {
+          productId: 2,
+          quantity: 3,
+        },
+        {
+          productId: 1,
+          quantity: 5,
+        },
+        {
+          productId: 3,
+          quantity: 1,
+        },
+      ];
+      const req = { params, body };
+      sinon.stub(salesModels, 'updateSale').resolves();
+      const responseInfo = await salesServices.updateSale(req);
 
       expect(responseInfo).to.be.an('object').that.has.all.keys('response', 'code');
-      expect(responseInfo.response).to.be.an('object').that.has.all.keys('message');
-      // expect(responseInfo.response).to.be.a('string').that.is.equal(responseFailed.message);
-      expect(responseInfo.code).to.be.an('object').that.has.all.keys('code');
-      expect(responseInfo.code.code).to.be.a('number').that.has.is.equal(responseFailed.code.code);
+      expect(responseInfo.response).to.be.an('object').that.has.all.keys('saleId', 'itemsUpdated');
     });
   });
 });

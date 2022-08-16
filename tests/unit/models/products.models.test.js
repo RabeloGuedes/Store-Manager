@@ -89,11 +89,23 @@ describe('Testa a camada models de produtos', () => {
     });
   });
 
-    describe("Testa a função deleteProduct", () => {
+  describe("Testa a função deleteProduct", () => {
       it("Verifica se a função deleteProduct remove o item requerido corretamente.", async () => {
       const productToBeDeleted = { id: 1, name: "Machado de Thor Stormbreaker"};
       sinon.stub(connection, "execute").resolves();
       await productsModels.deleteProduct(productToBeDeleted.id);
+    });
+  });
+
+  describe("Testa a função getProductBySearch", () => {
+      it("Verifica se a função getProductBySearch retorna o item requerido corretamente.", async () => {
+        const fakeProduct = { id: 1, name: "Machado de Thor Stormbreaker" };
+        const name = "machado"
+        sinon.stub(connection, "execute").resolves([fakeProduct]);
+        const product = await productsModels.getProductBySearch(name);
+        expect(product).to.has.all.keys('id', 'name');
+        expect(product.id).to.be.equal(fakeProduct.id);
+        expect(product.name).to.be.equal(fakeProduct.name);
     });
   });
 })

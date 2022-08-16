@@ -93,4 +93,12 @@ describe('Testa a camada models de sales', () => {
       await salesModels.deleteSale(1);
     });
   });
+
+  describe('Testa a função updateSale', () => {
+    it('Verifica se a função updateSale atualiza a venda requisitada.', async () => {
+      const saleToBeChanged = { saleId: 1, productId: 2, quantity: 3 };
+      sinon.stub(connection, 'execute').resolves();
+      await salesModels.updateSale(saleToBeChanged.saleId, saleToBeChanged.productId, saleToBeChanged.quantity);
+    });
+  });
 })

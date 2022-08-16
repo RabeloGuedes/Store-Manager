@@ -19,18 +19,9 @@ describe('Testa a camada de service de products.', () => {
       name: "Escudo do Capitão América",
     },
   ];
-  const fakeProduct = {
-    id: 1,
-    name: "Martelo de Thor",
-  };
   const newFakeProduct = {
     name: "Armadura do homem de ferro"
   }
-  const erroMessage = { message: "Product not found" };
-  const response = (res, codeValue) => ({
-    response: res,
-    code: { code: codeValue },
-  });
   beforeEach(sinon.restore);
 
   describe('Testa a função getAllProducts', () => {
@@ -45,32 +36,14 @@ describe('Testa a camada de service de products.', () => {
 
   describe("Testa a função getProductById", () => {
     it("Testa se chamando a função getProductById recebe o produto correto.", async () => {
-      sinon.stub(productsModels, "getProductById").resolves(response(fakeProduct, 200));
-      const product = await productsServices.getProductById(1);
+      const fakeProduct = { id: 1, name: "Martelo do Thor Mjölnir" }
+      sinon.stub(productsModels, "getProductById").resolves([fakeProduct]);
+      const product = await productsServices.getProductById(fakeProduct.id);
 
       expect(product).to.be.an("object");
-      expect(product.response.response).to.have.all.keys('id', 'name');
-      expect(product.response.code).to.have.all.keys("code");
-      expect(product.response.response.id).to.be.equal(fakeProduct.id);
-      expect(product.response.response.name).to.be.equal(fakeProduct.name);
-      expect(product.code.code).to.be.equal(200);
+      expect(product).to.have.all.keys('response', 'code');
     });
 
-    it("Testa se chamando a função getProductById com um id inexistente recebe a mensagem de error correta como resposta.", async () => {
-      sinon.stub(productsModels, "getProductById").resolves(response(erroMessage, 404));
-      const product = await productsServices.getProductById(4);
-      expect(product).to.be.an("object");
-      expect(product.response.response).to.have.all.keys("message");
-      expect(product.response.response.message).to.be.equal(erroMessage.message);
-      expect(product.response.code).to.have.all.keys("code");
-      expect(product.response.code.code).to.be.equal(404);
-    });
-
-    it("Testa se chamando a função getProductById recebe um valor diferente de undefined como resposta.", async () => {
-      sinon.stub(productsModels, "getProductById").resolves(undefined);
-      const product = await productsServices.getProductById(1);
-      expect(product).to.be.not.undefined;
-    });
   });
 
   describe("Testa a função createProduct", () => {
@@ -83,29 +56,9 @@ describe('Testa a camada de service de products.', () => {
       expect(product.response).to.be.an("object").that.has.all.keys('id', 'name');
       expect(product.response.id).to.be.equal(4);
       expect(product.response.name).to.be.equal(newProduct.name);
-      expect(product.code).to.be.an("object").that.has.all.keys('code');
-      expect(product.code.code).to.be.equal(201);
+      expect(product.code).to.be.a("number").that.is.equal(201);
     });
-    it("Testa se chamando a função createProduct, sem passar um nome, recebe um objeto com chaves 'reponse' contendo a chave 'message' e outra chamada 'code' contendo uma chave 'code'.", async () => {
-      const expectedResponse = response({ message: '"name" is required' }, 400);
-      sinon.stub(productsModels, "createProduct").resolves();
-      const product = await productsServices.createProduct();
 
-      expect(product.response).to.be.an("object").that.has.all.keys('message');
-      expect(product.response.message).to.be.equal(expectedResponse.response.message);
-      expect(product.code).to.be.an("object").that.has.all.keys('code');
-      expect(product.code.code).to.be.equal(expectedResponse.code.code);
-    });
-    it("Testa se chamando a função createProduct, passando um nome com menos que cinco caracteres, recebe um objeto com chaves 'reponse' contendo a chave 'message' e outra chamada 'code' contendo uma chave 'code'.", async () => {
-      const expectedResponse = response({ message: '"name" length must be at least 5 characters long' }, 422);
-      sinon.stub(productsModels, "createProduct").resolves();
-      const product = await productsServices.createProduct("name");
-
-      expect(product.response).to.be.an("object").that.has.all.keys('message');
-      expect(product.response.message).to.be.equal(expectedResponse.response.message);
-      expect(product.code).to.be.an("object").that.has.all.keys('code');
-      expect(product.code.code).to.be.equal(expectedResponse.code.code);
-    });
   });
 
   describe("Testa a função updateProduct", () => {
@@ -113,75 +66,48 @@ describe('Testa a camada de service de products.', () => {
     it("Testa se chamando a função updateProduct, em caso de sucesso, recebe os dados atualizados.", async () => {
       const newProductInfos = { id: 1, name: "Machado de Thor Stormbreaker" };
       sinon.stub(productsModels, "updateProduct").resolves();
-      const product = await productsServices.updateProduct({ id } = newProductInfos, { name } = newProductInfos);
+      const product = await productsServices.updateProduct({ id } = newFakeProduct, { name } = newFakeProduct);
 
       expect(product).to.be.an('object').that.has.all.keys('response', 'code');
       expect(product.response).to.be.an('object').that.has.all.keys('id', 'name');
-      expect(product.response.id).to.be.a('number').that.is.equal(newProductInfos.id);
-      expect(product.response.name).to.be.a('string').that.is.equal(newProductInfos.name);
     });
 
-    it("Testa se chamando a função updateProduct, em caso de falha quando o campo name é inexsitente, recebe a mensagem de erro correta.", async () => {
-      const newProductInfos = { id: 1, name: "Machado de Thor Stormbreaker" };
-      sinon.stub(productsModels, "updateProduct").resolves();
-      const error = { response: { message: '"name" is required' }, code: { code: 400 } };
-      const product = await productsServices.updateProduct({ id } = newProductInfos, {});
-
-      expect(product).to.be.an('object').that.has.all.keys('response', 'code');
-      expect(product.response).to.be.an('object').that.has.all.keys('message');
-      expect(product.code).to.be.an('object').that.has.all.keys('code');
-      expect(product.response.message).to.be.a('string').that.is.equal(error.response.message);
-      expect(product.code.code).to.be.a('number').that.is.equal(error.code.code);
-    });
-
-    it("Testa se chamando a função updateProduct, em caso de falha quando o campo name é inválido, recebe a mensagem de erro correta.", async () => {
-      const newProductInfos = { id: 1, name: "Mac" };
-      const error = { response: { message: '"name" length must be at least 5 characters long' },
-      code: { code: 422 } };
-      const product = await productsServices.updateProduct({ id } = newProductInfos, { name } = newProductInfos);
-
-      expect(product).to.be.an('object').that.has.all.keys('response', 'code');
-      expect(product.response).to.be.an('object').that.has.all.keys('message');
-      expect(product.code).to.be.an('object').that.has.all.keys('code');
-      expect(product.response.message).to.be.a('string').that.is.equal(error.response.message);
-      expect(product.code.code).to.be.a('number').that.is.equal(error.code.code);
-    });
-
-    it("Testa se chamando a função updateProduct, em caso de falha quando o id é inválido, recebe a mensagem de erro correta.", async () => {
-      const newProductInfos = { id: 999, name: "Machado de Thor Stormbreaker" };
-      const error = { response: { message: 'Product not found' }, code: { code: 404 } };
-      const product = await productsServices.updateProduct({ id } = newProductInfos, { name } = newProductInfos);
-
-      expect(product).to.be.an('object').that.has.all.keys('response', 'code');
-      expect(product.response).to.be.an('object').that.has.all.keys('message');
-      expect(product.code).to.be.an('object').that.has.all.keys('code');
-      expect(product.response.message).to.be.a('string').that.is.equal(error.response.message);
-      expect(product.code.code).to.be.a('number').that.is.equal(error.code.code);
-    });
   });
 
   describe("Testa a função deleteProduct", () => {
     
     it("Testa se chamando a função deleteProduct, em caso de sucesso, o produto é deletado.", async () => {
       const productToBeDeleted = { id: 1, name: "Machado de Thor Stormbreaker" };
-      const responseOK = { response: '', code: { code: 204 } };
+      const responseOK = { response: '', code: 204 };
       sinon.stub(productsModels, "deleteProduct").resolves(productToBeDeleted.id);
       const product = await productsServices.deleteProduct({ id } = productToBeDeleted);
 
       expect(product).to.be.an('object').that.has.all.keys('response', 'code');
       expect(product.response).to.be.a('string').that.is.equal(responseOK.response);
-      expect(product.code).to.be.a('number').that.is.equal(responseOK.code.code);
+      expect(product.code).to.be.a('number').that.is.equal(responseOK.code);
+    });
+  });
+
+  describe("Testa a função getProductBySearch", () => {
+    
+    it("Testa se chamando a função getProductBySearch, todos os produtos são retornados.", async () => {
+      const request = { };
+      request.query = { q: '' };
+      sinon.stub(productsModels, "getProductBySearch").resolves();
+      const allProducts = await productsServices.getProductBySearch(request);
+
+      expect(allProducts).to.be.an('object');
     });
 
-    it("Testa se chamando a função deleteProduct, em caso de falha, a mensagem de erro correta é mostrada.", async () => {
-      const productToBeDeleted = { id: 999, name: "Machado de Thor Stormbreaker" };
-      const reponseFailed = { response: { message: 'Product not found' }, code: { code: 404 } };
-      sinon.stub(productsModels, "deleteProduct").resolves(productToBeDeleted.id);
-      const product = await productsServices.deleteProduct({ id } = productToBeDeleted);
+  it("Testa se chamando a função getProductBySearch, todos os produtos são retornados.", async () => {
+      const searchedProduct = { id: 1, name: "Machado de Thor Stormbreaker" };
+      const request = { };
+      request.query = { q: 'machado' };
+      sinon.stub(productsModels, "getProductBySearch").resolves();
+      const products = await productsServices.getProductBySearch(request);
 
-      expect(product).to.be.an('object').that.has.all.keys('response', 'code');
-      expect(product.response.message).to.be.a('string').that.is.equal(reponseFailed.response.message);
-      expect(product.code).to.be.a('number').that.is.equal(reponseFailed.code.code);
+      expect(products).to.be.an('object');
     });
+
   });
 });
