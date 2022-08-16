@@ -11,3 +11,8 @@ app.listen(process.env.PORT, () => {
 
 app.use('/products', productsRoutes);
 app.use('/sales', salesRoutes);
+app.use((err, _req, res, next) => {
+  console.log(err);
+  res.status(500).json({ message: 'Erro no servidor!' });
+  next(err);
+});
