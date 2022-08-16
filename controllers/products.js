@@ -1,31 +1,38 @@
 const productsServices = require('../services/products');
+const { rescue } = require('../middlewares/util');
 
-const getAllProducts = async (_req, res) => {
+const getAllProducts = rescue(async (_req, res) => {
   const allProducts = await productsServices.getAllProducts();
   res.status(200).json(allProducts);
-};
+});
 
-const getProductById = async (req, res) => {
+const getProductById = rescue(async (req, res) => {
   const { id } = req.params;
-  const { response, code: { code } } = await productsServices.getProductById(id);
+  const { response, code } = await productsServices.getProductById(id);
   res.status(code).json(response);
-};
+});
 
-const createProduct = async (req, res) => {
+const createProduct = rescue(async (req, res) => {
   const { name } = req.body;
-  const { response, code: { code } } = await productsServices.createProduct(name);
+  const { response, code } = await productsServices.createProduct(name);
   res.status(code).json(response);
-};
+});
 
-const updateProduct = async (req, res) => {
-  const { response, code: { code } } = await productsServices.updateProduct(req.params, req.body);
+const updateProduct = rescue(async (req, res) => {
+  const { params, body } = req;
+  const { response, code } = await productsServices.updateProduct(params, body);
   res.status(code).json(response);
-};
+});
 
-const deleteProduct = async (req, res) => {
+const deleteProduct = rescue(async (req, res) => {
   const { response, code } = await productsServices.deleteProduct(req.params);
   res.status(code).json(response);
-};
+});
+
+const getProductBySearch = rescue(async (req, res) => {
+  const { response, code } = await productsServices.getProductBySearch(req);
+  res.status(code).json(response);
+});
 
 module.exports = {
   getAllProducts,
@@ -33,4 +40,5 @@ module.exports = {
   createProduct,
   updateProduct,
   deleteProduct,
+  getProductBySearch,
 };
